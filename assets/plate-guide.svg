@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 220" role="img" aria-labelledby="title desc">
+  <title id="title">餐盤份量示意</title>
+  <desc id="desc">一個餐盤分成主食、蛋白質和蔬菜區塊，旁邊有無糖飲品。</desc>
+  <rect width="360" height="220" rx="18" fill="#f7faf8"/>
+  <circle cx="144" cy="110" r="82" fill="#ffffff" stroke="#d5ddd8" stroke-width="6"/>
+  <path d="M144 28a82 82 0 0 1 71 123l-71-41Z" fill="#f1c453"/>
+  <path d="M215 151a82 82 0 0 1-142 0l71-41Z" fill="#5aa875"/>
+  <path d="M73 151A82 82 0 0 1 144 28v82Z" fill="#d8895b"/>
+  <circle cx="144" cy="110" r="35" fill="#fff8ea" stroke="#d5ddd8" stroke-width="4"/>
+  <text x="98" y="88" fill="#173c3b" font-family="Arial, sans-serif" font-size="16" font-weight="700">主食</text>
+  <text x="160" y="91" fill="#173c3b" font-family="Arial, sans-serif" font-size="16" font-weight="700">蛋白</text>
+  <text x="119" y="169" fill="#173c3b" font-family="Arial, sans-serif" font-size="16" font-weight="700">蔬菜</text>
+  <rect x="258" y="58" width="42" height="104" rx="18" fill="#d9eef0" stroke="#b6d3d6" stroke-width="4"/>
+  <path d="M259 102h40v42a18 18 0 0 1-18 18h-4a18 18 0 0 1-18-18Z" fill="#9bcbd0"/>
+  <text x="244" y="190" fill="#173c3b" font-family="Arial, sans-serif" font-size="15" font-weight="700">無糖飲品</text>
+</svg>
