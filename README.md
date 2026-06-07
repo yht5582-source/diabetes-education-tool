@@ -1,29 +1,24 @@
-# 糖尿病衛教熱量與台灣食物代換工具
+# DKD-PEW 評估工具
 
-供營養師衛教使用的純靜態網頁工具，可依個案性別、身高、體重、生活型態、血糖控制情形與腎功能狀況，估算每日熱量、醣量、三餐熱量配比與台灣常見外食代換。
+這是給 DKD / CKD 照護團隊使用的公開靜態網頁工具，包含三份彼此獨立的評估表：
 
-## 功能
+- 病人自填評估：10 題 0-2 分，另含紅旗條件。
+- 衛教師評估：DKD 特異風險因子 0-10 分。
+- 營養師評估：依 PEW 四大類確認，四大類中 3 類以上陽性支持 DKD-PEW。
 
-- 依台灣常用簡式公式估算 IBW、BMI 與每日總熱量
-- 依血糖控制情形調整醣類比例
-- 依生活型態與血糖情形建議三餐熱量配比
-- 依 eGFR 顯示腎功能分級與 CKD 衛教提醒
-- 內建便當/桌菜、水餃、煎餃、陽春麵、滷肉飯/控肉飯、牛肉麵、蚵仔煎/蝦仁煎、飯糰、鍋貼/水煎包等台灣常見食物情境
-- 可列印或複製衛教摘要
+本工具在瀏覽器本機運算，不會上傳個案資料。臨床使用時請依院內規範保存紀錄。
 
-## GitHub Pages 部署
+## 公開網址
 
-1. 建立 GitHub public repository。
-2. 將本資料夾內容推到 repository root。
-3. 在 GitHub repository 進入 `Settings > Pages`。
-4. `Build and deployment` 選 `Deploy from a branch`。
-5. Branch 選 `main`，Folder 選 `/ (root)`。
-6. 儲存後等待 GitHub Pages 產生公開網址。
+GitHub Pages 部署後預期網址：
 
-## 使用限制
+https://yht5582-source.github.io/diabetes-education-tool/
 
-本工具供營養師衛教溝通與初始估算，不取代醫師或營養師完整評估。CKD、透析、孕期、低血糖風險、胰島素調整、高齡衰弱或其他特殊情境，需依病況、用藥、血糖紀錄、尿蛋白、鉀磷鈉與院內規範個別化。
+## 參考
 
-## 來源
+- National Kidney Foundation KDOQI Clinical Practice Guideline for Nutrition in CKD: 2020 Update
+- ISRNM PEW diagnostic criteria framework: biochemical measures, body mass, muscle mass, and dietary intake
 
-公式與食物情境由原始 Excel 衛教表移植，並參考衛生福利部國民健康署公開資料與糖尿病衛教相關資源。
+## 免責
+
+本表單為臨床篩檢與營養評估輔助工具，不取代醫師診斷。急性感染、心衰竭、水腫、肝病、腫瘤、近期住院或大量蛋白尿時，應由醫師與營養師共同判讀。
