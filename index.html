@@ -1,324 +1,274 @@
 <!doctype html>
 <html lang="zh-Hant">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="DKD-PEW 評估工具：病人自填、衛教師、營養師三份獨立評估表。">
-  <title>DKD-PEW 評估工具</title>
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-  <header class="topbar">
-    <div class="topbar-inner">
-      <div class="brand">
-        <div class="brand-mark" aria-hidden="true">PEW</div>
-        <div>
-          <h1>DKD-PEW 評估工具</h1>
-          <p>病人自填、衛教師、營養師三份獨立評估表</p>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>糖尿病衛教熱量與台灣食物代換工具</title>
+    <meta
+      name="description"
+      content="供營養師使用的糖尿病衛教熱量估算、三餐配比與台灣常見食物代換工具。"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="title-block">
+          <p class="eyebrow">營養師衛教估算</p>
+          <h1>糖尿病熱量與台灣食物代換工具</h1>
+          <p class="dek">依個案資料建立三餐起始配比，搭配常見外食代換與臨床提醒。</p>
         </div>
-      </div>
-      <div class="actions">
-        <button class="btn" type="button" id="printBtn" title="列印目前評估內容">列印</button>
-        <button class="btn warn" type="button" id="resetBtn" title="清除本頁已填資料">清除</button>
-      </div>
-    </div>
-  </header>
-
-  <main class="wrap">
-    <div class="privacy-strip">
-      本工具在瀏覽器本機運算，不會上傳個案資料。臨床使用時請依院內規範保存紀錄。
-    </div>
-
-    <nav class="tabs" aria-label="評估區段">
-      <button class="tab" type="button" data-tab="patient" aria-selected="true">病人自填</button>
-      <button class="tab" type="button" data-tab="educator" aria-selected="false">衛教師評估</button>
-      <button class="tab" type="button" data-tab="dietitian" aria-selected="false">營養師確認</button>
-      <button class="tab" type="button" data-tab="summary" aria-selected="false">判定摘要</button>
-      <button class="tab" type="button" data-tab="references" aria-selected="false">參考標準</button>
-    </nav>
-
-    <section class="panel active" id="patient" aria-labelledby="patient-title">
-      <div class="grid two">
-        <div class="grid">
-          <div class="tool-card">
-            <div class="section-title">
-              <div>
-                <h2 id="patient-title">A. 病人自填快速篩檢</h2>
-                <p>請依最近 1 個月狀況填寫；體重變化請依最近 3-6 個月。</p>
-              </div>
-              <span class="badge">0-20 分</span>
-            </div>
-            <div class="form-grid" id="basicFields"></div>
-          </div>
-
-          <div class="tool-card">
-            <div class="section-title">
-              <div>
-                <h2>症狀與飲食篩檢</h2>
-                <p>每題選擇最接近的狀況，系統會即時計分。</p>
-              </div>
-              <span class="badge blue">高敏感度</span>
-            </div>
-            <div class="question-list" id="patientQuestions"></div>
-          </div>
-
-          <div class="tool-card">
-            <div class="section-title">
-              <div>
-                <h2>紅旗條件</h2>
-                <p>任一紅旗都建議聯絡照護團隊或安排進一步評估。</p>
-              </div>
-              <span class="badge rose">警訊</span>
-            </div>
-            <div class="check-grid" id="redFlags"></div>
-          </div>
+        <div class="top-actions" aria-label="工具列">
+          <button class="tool-button" id="printBtn" type="button">
+            <svg aria-hidden="true" viewBox="0 0 24 24">
+              <path d="M6 9V3h12v6" />
+              <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+              <path d="M6 14h12v8H6z" />
+            </svg>
+            列印
+          </button>
+          <button class="tool-button" id="copyBtn" type="button">
+            <svg aria-hidden="true" viewBox="0 0 24 24">
+              <path d="M8 8h12v12H8z" />
+              <path d="M4 16V4h12" />
+            </svg>
+            複製摘要
+          </button>
+          <button class="tool-button ghost" id="resetBtn" type="button">
+            <svg aria-hidden="true" viewBox="0 0 24 24">
+              <path d="M3 12a9 9 0 1 0 3-6.7" />
+              <path d="M3 4v5h5" />
+            </svg>
+            重設
+          </button>
         </div>
+      </header>
 
-        <aside class="result-card" aria-live="polite">
-          <div class="section-title">
-            <div>
-              <h3>病人自填結果</h3>
-              <p>自填總分與紅旗數</p>
+      <main class="main-grid">
+        <aside class="input-panel" aria-labelledby="inputTitle">
+          <div class="panel-heading">
+            <h2 id="inputTitle">個案資料</h2>
+            <span class="status-pill" id="inputStatus">範例個案</span>
+          </div>
+
+          <form id="patientForm" class="form-stack">
+            <label>
+              姓名/編號
+              <input id="patientId" type="text" value="王小明" autocomplete="off" />
+            </label>
+
+            <div class="field-row">
+              <label>
+                性別
+                <select id="sex">
+                  <option value="male">男</option>
+                  <option value="female">女</option>
+                </select>
+              </label>
+              <label>
+                年齡
+                <input id="age" type="number" min="18" max="120" step="1" value="65" />
+              </label>
             </div>
-          </div>
-          <div class="score-main">
-            <div class="score-value"><strong id="patientScore">0</strong><span>/ 20</span></div>
-            <div class="meter"><span id="patientMeter"></span></div>
-          </div>
-          <div class="result-line">
-            <span class="badge" id="patientLevel">低風險</span>
-            <strong id="patientInterpretation">例行追蹤</strong>
-            <p id="patientAction">若食慾、體重或活動力變差，請提前回報照護團隊。</p>
-          </div>
-          <div class="summary-list">
-            <div class="summary-item"><span>紅旗數</span><strong id="patientRedFlagCount">0</strong></div>
-            <div class="summary-item"><span>BMI</span><strong id="bmiResult">未填寫</strong></div>
-            <div class="summary-item"><span>下一步</span><strong id="patientNextStep">例行追蹤</strong></div>
-          </div>
+
+            <div class="field-row">
+              <label>
+                身高 cm
+                <input id="height" type="number" min="120" max="220" step="0.1" value="165" />
+              </label>
+              <label>
+                體重 kg
+                <input id="weight" type="number" min="25" max="220" step="0.1" value="72" />
+              </label>
+            </div>
+
+            <label>
+              生活型態
+              <select id="activity"></select>
+            </label>
+
+            <label>
+              體位調整
+              <select id="bodyAdjust">
+                <option value="auto">自動依 BMI 判斷</option>
+                <option value="underweight">體重過輕</option>
+                <option value="normal">正常</option>
+                <option value="overweight">過重/肥胖</option>
+              </select>
+            </label>
+
+            <div class="field-row">
+              <label>
+                A1C %
+                <input id="a1c" type="number" min="4" max="16" step="0.1" value="8.2" />
+              </label>
+              <label>
+                eGFR
+                <input id="egfr" type="number" min="0" max="160" step="1" value="55" />
+              </label>
+            </div>
+
+            <label>
+              血糖控制情形
+              <select id="glucose"></select>
+            </label>
+
+            <label>
+              腎臟治療狀態
+              <select id="renalTreatment">
+                <option value="none">未透析/未註記</option>
+                <option value="dialysis">透析中</option>
+                <option value="unknown">不確定</option>
+              </select>
+            </label>
+
+            <div class="toggle-row">
+              <input id="autoRatios" type="checkbox" checked />
+              <label for="autoRatios">自動建議三餐比例</label>
+            </div>
+          </form>
         </aside>
-      </div>
-    </section>
 
-    <section class="panel" id="educator" aria-labelledby="educator-title">
-      <div class="grid two">
-        <div class="grid">
-          <div class="tool-card">
-            <div class="section-title">
-              <div>
-                <h2 id="educator-title">B. 衛教師 DKD-PEW 評估</h2>
-                <p>獨立確認 DKD 特異風險、體重水腫判讀與營養照護需求。</p>
-              </div>
-              <span class="badge amber">評估</span>
-            </div>
-            <div class="form-grid" id="educatorFields"></div>
-          </div>
-
-          <div class="tool-card">
-            <div class="section-title">
-              <div>
-                <h2>DKD 特異風險因子</h2>
-                <p>每個風險因子為 1 分。</p>
-              </div>
-              <span class="badge blue">0-10 分</span>
-            </div>
-            <div class="check-grid" id="educatorRisks"></div>
-          </div>
-
-          <div class="tool-card">
-            <div class="section-title">
-              <div>
-                <h2>重點備註</h2>
-                <p>可記錄水腫、乾體重、飲食限制或照護資源問題。</p>
-              </div>
-            </div>
-            <div class="field">
-              <label for="educatorNote">備註</label>
-              <textarea id="educatorNote" data-state="educatorNote" placeholder="例如：水腫明顯，體重下降可能被水分掩蓋；需轉營養師評估熱量與蛋白質攝取。"></textarea>
-            </div>
-          </div>
-        </div>
-
-        <aside class="result-card" aria-live="polite">
-          <div class="section-title">
+        <section class="workspace" aria-live="polite">
+          <section class="safety-strip">
             <div>
-              <h3>衛教師評估結果</h3>
-              <p>僅依衛教師本表風險因子判讀</p>
+              <strong>專業使用提醒</strong>
+              <p>本工具供營養師衛教溝通與初始估算，CKD、透析、孕期、低血糖風險、胰島素調整或高齡衰弱需個別化。</p>
             </div>
-          </div>
-          <div class="score-main">
-            <div class="score-value"><strong id="educatorScore">0</strong><span>/ 10</span></div>
-            <div class="meter"><span id="educatorMeter"></span></div>
-          </div>
-          <div class="result-line">
-            <span class="badge" id="educatorLevel">例行追蹤</span>
-            <strong id="educatorRecommendation">例行追蹤</strong>
-            <p id="educatorAction">若 DKD 風險因子增加，請提早複評或安排進一步營養評估。</p>
-          </div>
-          <div class="summary-list">
-            <div class="summary-item"><span>評估方式</span><strong>獨立評估</strong></div>
-            <div class="summary-item"><span>風險分層</span><strong id="educatorRiskTier">低</strong></div>
-            <div class="summary-item"><span>建議</span><strong id="educatorCareNeed">例行追蹤</strong></div>
-          </div>
-        </aside>
-      </div>
-    </section>
+            <img src="assets/plate-guide.svg" alt="餐盤份量示意" />
+          </section>
 
-    <section class="panel" id="dietitian" aria-labelledby="dietitian-title">
-      <div class="grid two">
-        <div class="grid">
-          <div class="tool-card">
-            <div class="section-title">
+          <section class="metrics-grid" aria-label="估算結果">
+            <article class="metric">
+              <span>每日總熱量</span>
+              <strong id="dailyKcal">--</strong>
+              <small>kcal/day</small>
+            </article>
+            <article class="metric">
+              <span>每日醣量</span>
+              <strong id="dailyCarb">--</strong>
+              <small id="carbRatioText">--</small>
+            </article>
+            <article class="metric">
+              <span>BMI / 體位</span>
+              <strong id="bmiText">--</strong>
+              <small id="bodyText">--</small>
+            </article>
+            <article class="metric">
+              <span>理想體重</span>
+              <strong id="ibwText">--</strong>
+              <small>台灣簡式 IBW</small>
+            </article>
+            <article class="metric">
+              <span>蛋白質估算</span>
+              <strong id="proteinText">--</strong>
+              <small id="proteinNote">--</small>
+            </article>
+            <article class="metric">
+              <span>腎功能註記</span>
+              <strong id="renalStage">--</strong>
+              <small id="renalNote">--</small>
+            </article>
+          </section>
+
+          <section class="ratio-panel">
+            <div class="section-heading">
               <div>
-                <h2 id="dietitian-title">C. 營養師 DKD-PEW 確認</h2>
-                <p>依 PEW 四大類確認：生化、體重/脂肪、肌肉量/肌力、飲食攝取。</p>
+                <p class="eyebrow">Meal Split</p>
+                <h2>三餐熱量配比</h2>
               </div>
-              <span class="badge rose">高專一性</span>
+              <span class="check-pill" id="ratioCheck">--</span>
+            </div>
+            <p class="rule-note" id="ratioReason">--</p>
+            <div class="ratio-controls">
+              <label>
+                早餐 %
+                <input id="breakfastRatio" class="ratio-input" type="number" min="0" max="100" step="0.5" />
+              </label>
+              <label>
+                午餐 %
+                <input id="lunchRatio" class="ratio-input" type="number" min="0" max="100" step="0.5" />
+              </label>
+              <label>
+                晚餐 %
+                <input id="dinnerRatio" class="ratio-input" type="number" min="0" max="100" step="0.5" />
+              </label>
+            </div>
+          </section>
+
+          <section class="meal-panel">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">Education Table</p>
+                <h2>每餐份量與衛教說法</h2>
+              </div>
             </div>
             <div class="table-wrap">
               <table>
                 <thead>
                   <tr>
-                    <th>類別</th>
-                    <th>指標</th>
-                    <th>異常標準</th>
-                    <th>選擇</th>
-                    <th>分數</th>
-                    <th>主要</th>
-                    <th>備註/數值</th>
+                    <th>餐次</th>
+                    <th>熱量</th>
+                    <th>醣量</th>
+                    <th>全穀雜糧</th>
+                    <th>豆魚蛋肉</th>
+                    <th>蔬菜</th>
+                    <th>油脂</th>
+                    <th>衛教提醒</th>
                   </tr>
                 </thead>
-                <tbody id="dietitianRows"></tbody>
+                <tbody id="mealRows"></tbody>
               </table>
             </div>
-            <p class="note">同一類別內任一指標陽性，即該類別陽性；四大類中 ≥3 類陽性支持 DKD-PEW。</p>
-          </div>
+          </section>
 
-          <div class="tool-card">
-            <div class="section-title">
+          <section class="exchange-panel">
+            <div class="section-heading">
               <div>
-                <h2>醫師需共同評估</h2>
-                <p>白蛋白下降或體重變化需排除非營養因素。</p>
+                <p class="eyebrow">Taiwan Food Exchange</p>
+                <h2>台灣常見食物選項</h2>
               </div>
             </div>
-            <div class="check-grid" id="medicalChecks"></div>
-          </div>
 
-          <div class="tool-card">
-            <div class="section-title">
+            <div class="exchange-controls">
+              <label>
+                餐次
+                <select id="mealSelect"></select>
+              </label>
+              <label>
+                情境
+                <select id="scenarioSelect"></select>
+              </label>
+            </div>
+
+            <div class="exchange-result" id="scenarioResult"></div>
+            <div class="food-grid" id="foodGrid"></div>
+          </section>
+
+          <section class="summary-panel">
+            <div class="section-heading">
               <div>
-                <h2>營養師建議</h2>
-                <p>記錄營養處方、衛教重點與下次追蹤日期。</p>
+                <p class="eyebrow">Patient Script</p>
+                <h2>衛教摘要</h2>
               </div>
             </div>
-            <div class="form-grid">
-              <div class="field" style="grid-column: 1 / -1;">
-                <label for="dietitianAdvice">建議</label>
-                <textarea id="dietitianAdvice" data-state="dietitianAdvice" placeholder="例如：增加餐間點心、調整蛋白質來源、2-4 週後追蹤體重與攝取量。"></textarea>
-              </div>
-              <div class="field">
-                <label for="nextFollowUp">下次追蹤日期</label>
-                <input id="nextFollowUp" data-state="nextFollowUp" type="date">
-              </div>
-            </div>
-          </div>
-        </div>
+            <pre id="summaryText"></pre>
+          </section>
+        </section>
+      </main>
 
-        <aside class="result-card" aria-live="polite">
-          <div class="section-title">
-            <div>
-              <h3>營養師確認結果</h3>
-              <p>四大類陽性數與 PEW 總分</p>
-            </div>
-          </div>
-          <div class="score-main">
-            <div class="score-value"><strong id="categoryPositiveCount">0</strong><span>/ 4 類</span></div>
-            <div class="meter"><span id="dietitianMeter"></span></div>
-          </div>
-          <div class="result-line">
-            <span class="badge" id="dietitianLevel">目前未符合</span>
-            <strong id="dietitianInterpretation">目前未符合 PEW</strong>
-            <p id="dietitianAction">請依臨床情境追蹤攝取量、體重與肌肉/肌力變化。</p>
-          </div>
-          <div class="summary-list" id="categorySummary"></div>
-          <div class="summary-list">
-            <div class="summary-item"><span>PEW 總分</span><strong id="dietitianTotalScore">0</strong></div>
-          </div>
-        </aside>
-      </div>
-    </section>
-
-    <section class="panel" id="summary" aria-labelledby="summary-title">
-      <div class="grid two">
-        <div class="tool-card">
-          <div class="section-title">
-            <div>
-              <h2 id="summary-title">DKD-PEW 獨立評估摘要</h2>
-              <p>三份評估各自計分、各自判讀；摘要僅並列呈現。</p>
-            </div>
-            <span class="badge blue">團隊共用</span>
-          </div>
-          <div class="form-grid" id="summaryBasics"></div>
-          <div class="table-wrap" style="margin-top: 16px;">
-            <table>
-              <thead>
-                <tr>
-                  <th>來源</th>
-                  <th>指標</th>
-                  <th>分數/結果</th>
-                  <th>判讀</th>
-                  <th>建議處置</th>
-                  <th>追蹤時間</th>
-                </tr>
-              </thead>
-              <tbody id="summaryRows"></tbody>
-            </table>
-          </div>
-        </div>
-
-        <aside class="result-card" aria-live="polite">
-          <div class="section-title">
-            <div>
-              <h3>獨立判讀原則</h3>
-              <p>不以任一表單結果推導另一表單結果</p>
-            </div>
-          </div>
-          <div class="result-line">
-            <span class="badge blue" id="finalBadge">獨立評估</span>
-            <strong id="finalClassification">三份評估各自成立</strong>
-            <p id="finalAction">病人自填、衛教師評估、營養師評估可分別使用；摘要頁不產生因果式結論。</p>
-          </div>
-          <div class="summary-list">
-            <div class="summary-item"><span>生化</span><strong id="sumBio">陰性</strong></div>
-            <div class="summary-item"><span>體重/脂肪</span><strong id="sumWeight">陰性</strong></div>
-            <div class="summary-item"><span>肌肉量/肌力</span><strong id="sumMuscle">陰性</strong></div>
-            <div class="summary-item"><span>飲食攝取</span><strong id="sumIntake">陰性</strong></div>
-          </div>
-          <div class="callout warn" style="margin-top: 14px;">
-            本表單為臨床篩檢與營養評估輔助工具，不取代醫師診斷。急性感染、心衰竭、水腫、肝病、腫瘤、近期住院或大量蛋白尿時，應由醫師與營養師共同判讀。
-          </div>
-        </aside>
-      </div>
-    </section>
-
-    <section class="panel" id="references" aria-labelledby="references-title">
-      <div class="tool-card">
-        <div class="section-title">
-          <div>
-            <h2 id="references-title">PEW / DKD 評估參考標準</h2>
-            <p>供臨床團隊校準判讀與訓練使用。</p>
-          </div>
-        </div>
-        <div class="reference-grid" id="referenceGrid"></div>
-        <div class="callout" style="margin-top: 16px;">
-          建議追蹤頻率：DKD CKD G1-G2 每 6-12 月；G3 每 3-6 月；G4-G5 每 1-3 月；HD/PD 每月簡篩、每 3 月完整評估；感染、住院或傷口後 2-4 週內重評。
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <script src="app-data.js"></script>
-  <script src="app-utils.js"></script>
-  <script src="app-render.js"></script>
-  <script src="app-logic.js"></script>
-</body>
+      <footer class="site-footer">
+        <p>
+          公式與食物情境依原始 Excel 衛教表移植；BMI 分類參考衛生福利部國民健康署成人體位標準，糖尿病與腎功能提醒參考國民健康署與糖尿病衛教相關公開資料。
+        </p>
+        <nav aria-label="參考資料">
+          <a href="https://www.hpa.gov.tw/Pages/List.aspx?nodeid=1757" target="_blank" rel="noreferrer">國健署 BMI</a>
+          <a href="https://www.hpa.gov.tw/EngPages/List.aspx?nodeid=359" target="_blank" rel="noreferrer">國健署糖尿病</a>
+          <a href="https://www.hpa.gov.tw/Pages/Detail.aspx?nodeid=127&pid=16164" target="_blank" rel="noreferrer">國健署腎臟病蛋白質</a>
+          <a href="https://www.tade.org.tw/" target="_blank" rel="noreferrer">糖尿病衛教學會</a>
+        </nav>
+      </footer>
+    </div>
+    <script src="app.js"></script>
+  </body>
 </html>
