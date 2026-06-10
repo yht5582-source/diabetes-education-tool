@@ -201,6 +201,177 @@
       suitable: "早餐/午餐",
       template: "煎製點心同時含澱粉與油脂；顆數需控制，搭配無糖豆漿或燙青菜。",
     },
+    {
+      name: "大腸煎盤粿",
+      unit: "1份約5份主食",
+      servingName: "份",
+      grains: 5,
+      protein: 1,
+      veg: 0,
+      fat: 2,
+      kcal: 750,
+      carbSource: "蘿蔔糕/粉粿",
+      proteinSource: "大腸",
+      fatRisk: "大腸飽和脂肪、煎油、醬汁",
+      pairing: "建議不再加醬汁，當正餐時補足燙青菜；腎臟病或糖尿病腎病變個案依每日主食份量調整。",
+      avoid: "醬汁加滿、頻繁吃大腸、再搭配含糖飲",
+      suitable: "早餐/點心/夜市",
+      template: "1份約全穀根莖類5份、豆魚肉蛋類1份、油脂類2份；熱量約750 kcal。",
+    },
+    {
+      name: "蚵仔大腸麵線",
+      unit: "1碗約3份主食",
+      servingName: "碗",
+      grains: 3,
+      protein: 1,
+      veg: 1,
+      fat: 0.5,
+      kcal: 329,
+      carbSource: "麵線/勾芡",
+      proteinSource: "蚵仔、大腸",
+      fatRisk: "湯汁鈉、勾芡、大腸",
+      pairing: "滷小腸建議吃一半，另加半碗低鈉蔬菜；若當正餐可再依計畫補水果。",
+      avoid: "湯汁喝完、辣油加量、痛風或腎功能異常時過量",
+      suitable: "午/晚餐/點心",
+      template: "1碗約全穀根莖類3份、豆魚肉蛋類1份、蔬菜類1份；熱量約329 kcal。",
+    },
+    {
+      name: "蛋餅",
+      unit: "1份約2份主食",
+      servingName: "份",
+      grains: 2,
+      protein: 1,
+      veg: 0.1,
+      fat: 4,
+      kcal: 404,
+      carbSource: "蛋餅皮",
+      proteinSource: "雞蛋",
+      fatRisk: "煎油",
+      pairing: "早餐若吃蛋餅，可配無糖豆漿或少量米漿補足需求；午晚餐改清淡少油、高纖。",
+      avoid: "甜辣醬加滿、再搭油炸點心或含糖飲",
+      suitable: "早餐",
+      template: "1份約全穀根莖類2份、豆魚肉蛋類1份、蔬菜類0.1份、油脂類4份；熱量約404 kcal。",
+    },
+    {
+      name: "潤餅",
+      unit: "1捲約1.5份主食",
+      servingName: "捲",
+      grains: 1.5,
+      protein: 1,
+      veg: 2,
+      fat: 2,
+      kcal: 379,
+      carbSource: "潤餅皮、糖粉、配料",
+      proteinSource: "肉、蛋皮",
+      fatRisk: "花生粉、煎蛋皮、油麵",
+      pairing: "加1份水果可作正餐；糖尿病腎病變個案可用冬粉、河粉、粉條、米粉等低氮澱粉替代油麵。",
+      avoid: "糖粉過量、油麵加量、肉與煎蛋皮過量",
+      suitable: "午/晚餐/節慶",
+      template: "1捲約全穀根莖類1.5份、豆魚肉蛋類1份、蔬菜類2份、油脂類2份；熱量約379 kcal。",
+    },
+    {
+      name: "假魚肚羹",
+      unit: "1碗約1份主食",
+      servingName: "碗",
+      grains: 1,
+      protein: 3,
+      veg: 0.1,
+      fat: 3,
+      kcal: 425,
+      carbSource: "羹湯勾芡",
+      proteinSource: "炸豬皮、魚漿",
+      fatRisk: "炸豬皮、加工魚漿、羹湯鈉",
+      pairing: "若選用，主食需另行控制並補蔬菜；腎臟病患者建議少吃。",
+      avoid: "湯汁喝完、再搭炸物或加工品",
+      suitable: "午/晚餐/小吃",
+      template: "1碗約全穀根莖類1份、豆魚肉蛋類3份、蔬菜類0.1份；依三大營養素換算約425 kcal。",
+    },
+    {
+      name: "土豆油飯",
+      unit: "1盒約3.3份主食",
+      servingName: "盒",
+      grains: 3.3,
+      protein: 0.3,
+      veg: 0,
+      fat: 3,
+      kcal: 439,
+      sourceNote: "PDF熱量列493.5 kcal，但依蛋白質10.3g、脂肪20.5g、醣類53.2g換算約439 kcal。",
+      carbSource: "糯米飯",
+      proteinSource: "花生、少量肉燥",
+      fatRisk: "油飯用油、花生、肉燥",
+      pairing: "淺嚐即可；若當正餐需加燙青菜與適量蛋白質。",
+      avoid: "過量、再加滷汁或含糖飲",
+      suitable: "午/晚餐/節慶",
+      template: "1盒約全穀根莖類3.3份、豆魚肉蛋類0.3份、油脂類3份；校正熱量約439 kcal。",
+    },
+    {
+      name: "花生米腸",
+      unit: "1份約2.5份主食",
+      servingName: "份",
+      grains: 2.5,
+      protein: 0.1,
+      veg: 0,
+      fat: 1.7,
+      kcal: 275,
+      carbSource: "糯米飯",
+      proteinSource: "花生",
+      fatRisk: "花生、豬油煎製",
+      pairing: "適合當點心；若當正餐建議加1碗蔬菜豆腐湯，飯後水果依餐次計畫安排。",
+      avoid: "高血脂者常吃、再配甜醬或含糖飲",
+      suitable: "點心/夜市",
+      template: "1份約全穀根莖類2.5份、豆魚肉蛋類0.1份、油脂類1.7份；熱量約275 kcal。",
+    },
+    {
+      name: "皮蛋瘦肉粥",
+      unit: "1碗約4份主食",
+      servingName: "碗",
+      grains: 4,
+      protein: 2,
+      veg: 0.3,
+      fat: 0.5,
+      kcal: 449,
+      carbSource: "稀飯",
+      proteinSource: "皮蛋、瘦肉、吻仔魚、油條",
+      fatRisk: "油條、皮蛋鈉、粥品糊化快",
+      pairing: "可再配半碗炒青菜使營養更均衡；糖尿病患者粥量宜少，避免過度糊化造成血糖上升快。",
+      avoid: "油條加量、粥吃過量、湯汁鈉過多",
+      suitable: "早餐/午餐",
+      template: "1碗約全穀根莖類4份、豆魚肉蛋類2份、蔬菜類0.3份、油脂類少許；熱量約449 kcal。",
+    },
+    {
+      name: "當歸鴨冬粉",
+      unit: "1碗約2.5份主食",
+      servingName: "碗",
+      grains: 2.5,
+      protein: 2,
+      veg: 1,
+      fat: 0.5,
+      kcal: 278,
+      carbSource: "冬粉",
+      proteinSource: "鴨肉",
+      fatRisk: "湯汁鈉、鴨皮油脂",
+      pairing: "冬粉當主食可降低蛋白質攝取；腎臟病患者建議不喝湯，鴨肉酌量。",
+      avoid: "湯喝完、鴨肉過量、加重口味沾醬",
+      suitable: "午/晚餐",
+      template: "1碗約全穀根莖類2.5份、豆魚肉蛋類2份、蔬菜類1份；熱量約278 kcal。",
+    },
+    {
+      name: "蚵仔煎",
+      unit: "1盤約2份主食",
+      servingName: "盤",
+      grains: 2,
+      protein: 1.3,
+      veg: 0.7,
+      fat: 6,
+      kcal: 517,
+      carbSource: "蕃薯粉、甜醬",
+      proteinSource: "蚵仔、雞蛋",
+      fatRisk: "煎油、甜醬",
+      pairing: "腎臟病患者可請老闆不加蛋、只用蚵仔；糖尿病腎病變個案建議醬料減半。",
+      avoid: "甜醬全加、再配甜飲、油脂高的其他小吃",
+      suitable: "午/晚餐/夜市",
+      template: "1盤約全穀根莖類2份、豆魚肉蛋類1.3份、蔬菜類0.7份、油脂類6份；熱量約517 kcal。",
+    },
   ];
 
   const meals = [
@@ -549,7 +720,18 @@
 
     const quantity = quantityForScenario(scenario, meal);
     const renalWarn =
-      ["滷肉飯/控肉飯", "牛肉麵", "陽春麵", "雞腿/排骨"].includes(scenario.name) &&
+      [
+        "滷肉飯/控肉飯",
+        "牛肉麵",
+        "陽春麵",
+        "雞腿/排骨",
+        "大腸煎盤粿",
+        "蚵仔大腸麵線",
+        "假魚肚羹",
+        "皮蛋瘦肉粥",
+        "當歸鴨冬粉",
+        "蚵仔煎",
+      ].includes(scenario.name) &&
       readState().egfr < 60;
     const result = document.getElementById("scenarioResult");
     result.innerHTML = `
@@ -560,7 +742,9 @@
           <span class="tag">主食 ${formatNumber(meal.grains, 1)} 份</span>
           <span class="tag">蛋白 ${formatNumber(meal.protein, 1)} 份</span>
           <span class="tag">蔬菜 ${formatNumber(meal.veg, 1)} 份</span>
+          ${scenario.kcal ? `<span class="tag">每份約 ${formatNumber(scenario.kcal, 0)} kcal</span>` : ""}
           <span class="tag ${scenario.fat >= 1.5 ? "warn" : ""}">油脂風險：${escapeHtml(scenario.fatRisk)}</span>
+          ${scenario.sourceNote ? `<span class="tag warn">${escapeHtml(scenario.sourceNote)}</span>` : ""}
           ${renalWarn ? '<span class="tag warn">腎功能：注意鈉/湯汁/加工品</span>' : ""}
         </div>
       </div>
@@ -579,8 +763,9 @@
         (item) => `
           <article class="food-card">
             <h3>${escapeHtml(item.name)}</h3>
-            <p class="food-meta">${escapeHtml(item.unit)} · ${escapeHtml(item.suitable)}</p>
+            <p class="food-meta">${escapeHtml(item.unit)} · ${escapeHtml(item.suitable)}${item.kcal ? ` · 約${formatNumber(item.kcal, 0)} kcal` : ""}</p>
             <p>${escapeHtml(item.template)}</p>
+            ${item.sourceNote ? `<p>${escapeHtml(item.sourceNote)}</p>` : ""}
             <p>主要醣量來源：${escapeHtml(item.carbSource)}</p>
           </article>
         `,
@@ -593,6 +778,13 @@
     const p = meal.protein;
     const v = meal.veg;
     const f = meal.fat;
+    if (scenario.servingName) {
+      const base = scenario.portionBy === "protein" && scenario.protein > 0 ? p / scenario.protein : g / scenario.grains;
+      const portion = Math.max(0.25, Math.round(base * 4) / 4);
+      const addVeg = scenario.veg < meal.veg ? "，並補足青菜" : "";
+      const sauce = scenario.fat >= 3 ? "；油脂高，醬料/湯汁減量" : "";
+      return `約 ${formatNumber(portion, 2)} ${scenario.servingName}${addVeg}${sauce}`;
+    }
     switch (scenario.name) {
       case "便當/桌菜":
         return `白飯約 ${formatNumber(g / 4, 1)} 碗；主菜約 ${formatNumber(p / 2, 1)} 掌心；熟菜約 ${formatNumber(v / 2, 1)} 碗`;
