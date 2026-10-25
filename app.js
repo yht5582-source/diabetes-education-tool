@@ -374,6 +374,14 @@
     },
   ];
 
+  // 台灣食物代換表每份營養素（國健署）；豆魚蛋肉以中脂計
+  const EX = {
+    grain: { carb: 15, protein: 2, kcal: 70 },
+    meat: { protein: 7, kcal: 75 },
+    veg: { carb: 5, protein: 1, kcal: 25 },
+    fat: { kcal: 45 },
+  };
+
   const meals = [
     { key: "breakfast", label: "早餐", protein: 2, veg: 0.5 },
     { key: "lunch", label: "午餐", protein: 3, veg: 2 },
@@ -432,9 +440,12 @@
       calculateAndRender();
     });
 
-    document.getElementById("patientForm").addEventListener("change", calculateAndRender);
-    el.mealSelect.addEventListener("change", renderScenario);
-    el.scenarioSelect.addEventListener("change", renderScenario);
+    document.getElementById("patientForm").addEventListener("change", (event) => {
+      // 數字欄位已在 input 事件重算；select/checkbox 才需要在 change 時重算
+      if (event.target.type !== "number" && event.target.type !== "text") calculateAndRender();
+    });
+    el.mealSelect.addEventListener("change", calculateAndRender);
+    el.scenarioSelect.addEventListener("change", calculateAndRender);
 
     document.getElementById("printBtn").addEventListener("click", () => window.print());
     document.getElementById("copyBtn").addEventListener("click", copySummary);
@@ -477,7 +488,7 @@
 
   function syncGlucoseFromA1c() {
     const a1c = readNumber(el.a1c);
-    if (!Number.isFinite(a1c)) return;
+    if (!(a1c >= ranges.a1c[0] && a1c <= ranges.a1c[1])) return;
     if (a1c < 7) el.glucose.value = "good";
     if (a1c >= 7 && a1c <= 8.5) el.glucose.value = "fair";
     if (a1c > 8.5) el.glucose.value = "poor";
@@ -500,17 +511,39 @@
     updateInputStatus(results);
   }
 
+  // 超出合理範圍視為未輸入，避免打字中途（如身高只打到 16）算出離譜結果
+  const ranges = {
+    age: [18, 120],
+    height: [120, 220],
+    weight: [25, 250],
+    a1c: [3, 20],
+    egfr: [0, 200],
+  };
+
+  function readChecked(id) {
+    const input = el[id];
+    const value = readNumber(input);
+    const [min, max] = ranges[id];
+    const bad = input.value.trim() !== "" && !(value >= min && value <= max);
+    input.setAttribute("aria-invalid", bad ? "true" : "false");
+    return bad ? NaN : value;
+  }
+
+  function invalidFields() {
+    return Object.keys(ranges).filter((id) => el[id].getAttribute("aria-invalid") === "true");
+  }
+
   function readState() {
     return {
       patientId: el.patientId.value.trim(),
       sex: el.sex.value,
-      age: readNumber(el.age),
-      height: readNumber(el.height),
-      weight: readNumber(el.weight),
+      age: readChecked("age"),
+      height: readChecked("height"),
+      weight: readChecked("weight"),
       activityKey: el.activity.value,
       bodyAdjust: el.bodyAdjust.value,
-      a1c: readNumber(el.a1c),
-      egfr: readNumber(el.egfr),
+      a1c: readChecked("a1c"),
+      egfr: readChecked("egfr"),
       glucoseKey: el.glucose.value,
       renalTreatment: el.renalTreatment.value,
       autoRatios: el.autoRatios.checked,
@@ -578,17 +611,29 @@
     const adjustment = bodyAdjustments[bodyKey] || bodyAdjustments.normal;
     const totalKcal = roundToNearest(ibw * activity.factor + adjustment.kcal, 50);
     const dailyCarb = Math.round((totalKcal * glucose.carbRatio) / 4);
-    const dailyProtein = Math.round((totalKcal * 0.2) / 4);
-    const dailyFat = Math.round((totalKcal * (1 - glucose.carbRatio - 0.2)) / 9);
     const renal = renalStage(state.egfr, state.renalTreatment);
+    const proteinPlan = proteinTarget(totalKcal, ibw, renal);
+    const dailyProtein = proteinPlan.grams;
+    const dailyFat = Math.max(0, Math.round((totalKcal - dailyCarb * 4 - dailyProtein * 4) / 9));
+    const proteinWeightSum = meals.reduce((sum, meal) => sum + meal.protein, 0);
     const mealRows = meals.map((meal, index) => {
       const ratio = state.ratios[index] || 0;
       const kcal = Math.round((totalKcal * ratio) / 100);
       const carbs = Math.round((dailyCarb * ratio) / 100);
-      const grains = roundOne(carbs / 15);
-      const protein = meal.protein;
       const veg = meal.veg;
-      const fat = Math.max(0, roundHalf((kcal - grains * 70 - protein * 75 - veg * 25) / 45));
+      // 醣量先扣蔬菜（每份 5 g），其餘由全穀雜糧（每份 15 g）提供
+      const grains = Math.max(0, roundHalf((carbs - veg * EX.veg.carb) / EX.grain.carb));
+      // 蛋白質依每日目標按餐次權重分配，扣除主食與蔬菜所含蛋白後換成豆魚蛋肉份數
+      const mealProteinG = (dailyProtein * meal.protein) / proteinWeightSum;
+      const protein = Math.max(
+        0,
+        roundHalf((mealProteinG - grains * EX.grain.protein - veg * EX.veg.protein) / EX.meat.protein),
+      );
+      const fat = Math.max(
+        0,
+        roundHalf((kcal - grains * EX.grain.kcal - protein * EX.meat.kcal - veg * EX.veg.kcal) / EX.fat.kcal),
+      );
+      const exchangeKcal = grains * EX.grain.kcal + protein * EX.meat.kcal + veg * EX.veg.kcal + fat * EX.fat.kcal;
       return {
         ...meal,
         ratio,
@@ -598,6 +643,7 @@
         protein,
         veg,
         fat,
+        exchangeKcal,
         note: mealNote(meal.key, grains, renal),
       };
     });
@@ -615,9 +661,29 @@
       dailyCarb,
       dailyProtein,
       dailyFat,
+      proteinPlan,
       renal,
       meals: mealRows,
       ratioSum: state.ratios.reduce((sum, value) => sum + value, 0),
+    };
+  }
+
+  function proteinTarget(totalKcal, ibw, renal) {
+    if (renal.dialysis && Number.isFinite(ibw)) {
+      return {
+        grams: Math.round(ibw * 1.1),
+        note: "透析 1.0–1.2 g/kg IBW（取 1.1）",
+      };
+    }
+    if (renal.level >= 3 && Number.isFinite(ibw)) {
+      return {
+        grams: Math.round(ibw * 0.8),
+        note: "CKD G3–G5 未透析 0.8 g/kg IBW",
+      };
+    }
+    return {
+      grams: Math.round((totalKcal * 0.2) / 4),
+      note: "總熱量 20%",
     };
   }
 
@@ -641,6 +707,7 @@
         level: 5,
         note: "透析、鉀磷與蛋白質需專科營養處方",
         caution: true,
+        dialysis: true,
       };
     }
     if (!Number.isFinite(egfr)) {
@@ -655,6 +722,7 @@
   }
 
   function mealNote(key, grains, renal) {
+    if (!Number.isFinite(grains)) return "請先完成身高、體重等個案資料。";
     const riceBowl = formatNumber(grains / 4, 1);
     if (key === "breakfast") {
       return `主食約 ${formatNumber(grains, 1)} 份；蛋餅、飯糰、饅頭擇一，含糖飲避免疊加。`;
@@ -672,12 +740,19 @@
     setText("dailyCarb", `${formatNumber(results.dailyCarb, 0)} g`);
     setText("carbRatioText", `醣類 ${formatNumber(results.glucose.carbRatio * 100, 0)}%`);
     setText("bmiText", Number.isFinite(results.bmi) ? formatNumber(results.bmi, 1) : "--");
-    setText("bodyText", `${bodyAdjustments[results.bodyKey].label}，${formatSigned(results.adjustment.kcal)} kcal`);
+    setText(
+      "bodyText",
+      Number.isFinite(results.bmi) || results.bodyAdjust !== "auto"
+        ? `${bodyAdjustments[results.bodyKey].label}，${formatSigned(results.adjustment.kcal)} kcal`
+        : "--",
+    );
     setText("ibwText", Number.isFinite(results.ibw) ? `${formatNumber(results.ibw, 1)} kg` : "--");
     setText("proteinText", `${formatNumber(results.dailyProtein, 0)} g`);
     setText(
       "proteinNote",
-      results.renal.caution ? "腎功能註記需個別化" : `脂肪約 ${formatNumber(results.dailyFat, 0)} g/day`,
+      results.renal.caution
+        ? `${results.proteinPlan.note}；需個別化`
+        : `${results.proteinPlan.note}；脂肪約 ${formatNumber(results.dailyFat, 0)} g/day`,
     );
     setText("renalStage", results.renal.label);
     setText("renalNote", results.renal.note);
@@ -700,7 +775,7 @@
         (meal) => `
           <tr>
             <td><span class="meal-name">${escapeHtml(meal.label)}</span><br><small>${formatNumber(meal.ratio, 1)}%</small></td>
-            <td>${formatNumber(meal.kcal, 0)} kcal</td>
+            <td>${formatNumber(meal.kcal, 0)} kcal${exchangeCheck(meal)}</td>
             <td>${formatNumber(meal.carbs, 0)} g</td>
             <td>${formatNumber(meal.grains, 1)} 份</td>
             <td>${formatNumber(meal.protein, 1)} 份</td>
@@ -711,6 +786,14 @@
         `,
       )
       .join("");
+  }
+
+  function exchangeCheck(meal) {
+    if (!Number.isFinite(meal.kcal) || meal.kcal <= 0) return "";
+    const over = meal.exchangeKcal - meal.kcal;
+    const cls = over > meal.kcal * 0.1 ? ' class="over"' : "";
+    const text = over > meal.kcal * 0.1 ? "份數合計偏高，主食或蛋白需下修" : "份數合計";
+    return `<br><small${cls}>${text} ${formatNumber(meal.exchangeKcal, 0)} kcal</small>`;
   }
 
   function renderScenario() {
@@ -731,8 +814,7 @@
         "皮蛋瘦肉粥",
         "當歸鴨冬粉",
         "蚵仔煎",
-      ].includes(scenario.name) &&
-      readState().egfr < 60;
+      ].includes(scenario.name) && renalStage(readNumber(el.egfr), el.renalTreatment.value).caution;
     const result = document.getElementById("scenarioResult");
     result.innerHTML = `
       <div>
@@ -742,7 +824,8 @@
           <span class="tag">主食 ${formatNumber(meal.grains, 1)} 份</span>
           <span class="tag">蛋白 ${formatNumber(meal.protein, 1)} 份</span>
           <span class="tag">蔬菜 ${formatNumber(meal.veg, 1)} 份</span>
-          ${scenario.kcal ? `<span class="tag">每份約 ${formatNumber(scenario.kcal, 0)} kcal</span>` : ""}
+          ${scenario.kcal ? `<span class="tag">每${escapeHtml(scenario.servingName || "份")}約 ${formatNumber(scenario.kcal, 0)} kcal</span>` : ""}
+          ${kcalMismatch(scenario) ? `<span class="tag warn">依份數換算約 ${formatNumber(scenarioExchangeKcal(scenario), 0)} kcal，與標示差異較大</span>` : ""}
           <span class="tag ${scenario.fat >= 1.5 ? "warn" : ""}">油脂風險：${escapeHtml(scenario.fatRisk)}</span>
           ${scenario.sourceNote ? `<span class="tag warn">${escapeHtml(scenario.sourceNote)}</span>` : ""}
           ${renalWarn ? '<span class="tag warn">腎功能：注意鈉/湯汁/加工品</span>' : ""}
@@ -756,6 +839,15 @@
     `;
   }
 
+  function scenarioExchangeKcal(item) {
+    return item.grains * EX.grain.kcal + item.protein * EX.meat.kcal + item.veg * EX.veg.kcal + item.fat * EX.fat.kcal;
+  }
+
+  function kcalMismatch(item) {
+    if (!item.kcal || item.sourceNote) return false;
+    return Math.abs(scenarioExchangeKcal(item) - item.kcal) / item.kcal > 0.15;
+  }
+
   function renderFoodGrid() {
     const grid = document.getElementById("foodGrid");
     grid.innerHTML = scenarios
@@ -766,6 +858,7 @@
             <p class="food-meta">${escapeHtml(item.unit)} · ${escapeHtml(item.suitable)}${item.kcal ? ` · 約${formatNumber(item.kcal, 0)} kcal` : ""}</p>
             <p>${escapeHtml(item.template)}</p>
             ${item.sourceNote ? `<p>${escapeHtml(item.sourceNote)}</p>` : ""}
+            ${kcalMismatch(item) ? `<p class="food-flag">依份數換算約 ${formatNumber(scenarioExchangeKcal(item), 0)} kcal，與標示 ${formatNumber(item.kcal, 0)} kcal 差異 >15%，請核對來源。</p>` : ""}
             <p>主要醣量來源：${escapeHtml(item.carbSource)}</p>
           </article>
         `,
@@ -778,16 +871,23 @@
     const p = meal.protein;
     const v = meal.veg;
     const f = meal.fat;
+    if (!Number.isFinite(g)) return "請先完成個案資料";
     if (scenario.servingName) {
-      const base = scenario.portionBy === "protein" && scenario.protein > 0 ? p / scenario.protein : g / scenario.grains;
+      // 份量同時受主食與蛋白質份數限制，取較小者，避免高蛋白小吃換出過多份
+      const byGrain = scenario.grains > 0 ? g / scenario.grains : Infinity;
+      const byProtein = scenario.protein >= 1 ? p / scenario.protein : Infinity;
+      const base = Math.min(byGrain, byProtein);
+      if (!Number.isFinite(base)) return "請先完成個案資料";
       const portion = Math.max(0.25, Math.round(base * 4) / 4);
-      const addVeg = scenario.veg < meal.veg ? "，並補足青菜" : "";
-      const sauce = scenario.fat >= 3 ? "；油脂高，醬料/湯汁減量" : "";
-      return `約 ${formatNumber(portion, 2)} ${scenario.servingName}${addVeg}${sauce}`;
+      const grainGap = roundHalf(g - portion * scenario.grains);
+      const addGrain = grainGap >= 1 ? `，主食不足可補白飯約 ${formatNumber(grainGap / 4, 1)} 碗` : "";
+      const addVeg = scenario.veg * portion < v ? "，並補足青菜" : "";
+      const sauce = scenario.fat * portion > f + 1 ? "；油脂超過本餐份數，醬料/湯汁減量" : "";
+      return `約 ${formatNumber(portion, 2)} ${scenario.servingName}${addGrain}${addVeg}${sauce}`;
     }
     switch (scenario.name) {
       case "便當/桌菜":
-        return `白飯約 ${formatNumber(g / 4, 1)} 碗；主菜約 ${formatNumber(p / 2, 1)} 掌心；熟菜約 ${formatNumber(v / 2, 1)} 碗`;
+        return `白飯約 ${formatNumber(g / 4, 1)} 碗；主菜約 ${formatNumber(p / 3, 1)} 掌心；熟菜約 ${formatNumber(v / 2, 1)} 碗`;
       case "水餃":
         return `約 ${Math.max(1, Math.round(g / 0.5))} 顆水餃`;
       case "煎餃": {
@@ -830,12 +930,16 @@
     const lines = [
       `個案：${results.patientId || "未填"}，${results.sex === "male" ? "男" : "女"}，${formatNumber(results.age, 0)}歲`,
       `身高/體重：${formatNumber(results.height, 1)} cm / ${formatNumber(results.weight, 1)} kg，BMI ${formatNumber(results.bmi, 1)}（${bodyAdjustments[results.bodyKey].label}）`,
-      `估算：每日 ${formatNumber(results.totalKcal, 0)} kcal，醣量 ${formatNumber(results.dailyCarb, 0)} g/day（${formatNumber(results.glucose.carbRatio * 100, 0)}%），蛋白質約 ${formatNumber(results.dailyProtein, 0)} g/day`,
+      `估算：每日 ${formatNumber(results.totalKcal, 0)} kcal，醣量 ${formatNumber(results.dailyCarb, 0)} g/day（${formatNumber(results.glucose.carbRatio * 100, 0)}%），蛋白質約 ${formatNumber(results.dailyProtein, 0)} g/day（${results.proteinPlan.note}）`,
       `腎功能：${results.renal.label}，${results.renal.note}`,
       `三餐配比：早餐 ${formatNumber(results.meals[0].ratio, 1)}%、午餐 ${formatNumber(results.meals[1].ratio, 1)}%、晚餐 ${formatNumber(results.meals[2].ratio, 1)}%。${suggestion.reason}`,
       "",
       "每餐主食份量：",
-      ...results.meals.map((meal) => `- ${meal.label}：${formatNumber(meal.kcal, 0)} kcal，醣量 ${formatNumber(meal.carbs, 0)} g，主食約 ${formatNumber(meal.grains, 1)} 份。${meal.note}`),
+      ...results.meals.map(
+        (meal) =>
+          `- ${meal.label}：${formatNumber(meal.kcal, 0)} kcal，醣量 ${formatNumber(meal.carbs, 0)} g；全穀雜糧 ${formatNumber(meal.grains, 1)} 份、豆魚蛋肉 ${formatNumber(meal.protein, 1)} 份、蔬菜 ${formatNumber(meal.veg, 1)} 份、油脂 ${formatNumber(meal.fat, 1)} 份。${meal.note}`,
+      ),
+      "若當餐安排水果 1 份（醣 15 g），主食同步減 1 份。",
       "",
       `外食代換示範：${selectedMeal.label}選${selectedScenario.name}，${quantity}`,
       `提醒：${selectedScenario.avoid}。${results.renal.caution ? "腎功能異常者需再確認蛋白質、鈉、鉀、磷與湯汁攝取。" : "實際處方仍需依用藥、血糖紀錄與營養評估調整。"}`,
@@ -845,7 +949,17 @@
 
   function updateInputStatus(results) {
     const status = document.getElementById("inputStatus");
-    status.textContent = results.patientId ? "已輸入" : "未命名";
+    const labels = { age: "年齡", height: "身高", weight: "體重", a1c: "A1C", egfr: "eGFR" };
+    const bad = invalidFields();
+    const missing = !Number.isFinite(results.height) || !Number.isFinite(results.weight);
+    status.classList.toggle("warn", bad.length > 0 || missing);
+    if (bad.length) {
+      status.textContent = `請檢查：${bad.map((id) => labels[id]).join("、")}`;
+    } else if (missing) {
+      status.textContent = "請輸入身高體重";
+    } else {
+      status.textContent = results.patientId ? "已輸入" : "未命名";
+    }
   }
 
   async function copySummary() {
@@ -854,7 +968,17 @@
       await navigator.clipboard.writeText(text);
       toast("衛教摘要已複製");
     } catch (error) {
-      toast("複製失敗，可改用列印");
+      // file:// 或舊瀏覽器沒有 Clipboard API 時改用選取複製
+      const area = document.createElement("textarea");
+      area.value = text;
+      area.setAttribute("readonly", "");
+      area.style.position = "fixed";
+      area.style.opacity = "0";
+      document.body.append(area);
+      area.select();
+      const ok = document.execCommand("copy");
+      area.remove();
+      toast(ok ? "衛教摘要已複製" : "複製失敗，可改用列印");
     }
   }
 
@@ -878,7 +1002,7 @@
   }
 
   function roundHalf(value) {
-    if (!Number.isFinite(value)) return 0;
+    if (!Number.isFinite(value)) return NaN;
     return Math.round(value * 2) / 2;
   }
 
