@@ -157,21 +157,6 @@
       template: "麵量約1碗即4份主食；湯少喝，建議加燙青菜或海帶/豆乾。",
     },
     {
-      name: "蚵仔煎/蝦仁煎",
-      unit: "1份約3份主食",
-      grains: 3,
-      protein: 1.5,
-      veg: 0.3,
-      fat: 2,
-      carbSource: "粉漿、甜醬",
-      proteinSource: "蚵仔/蝦仁/蛋",
-      fatRisk: "煎油、甜醬",
-      pairing: "醬料減半，搭配無糖茶或燙青菜。",
-      avoid: "甜醬全加、再配甜飲",
-      suitable: "午/晚餐/夜市",
-      template: "粉漿與甜醬都要算醣；建議醬減半，避免再配含糖飲。",
-    },
-    {
       name: "飯糰",
       unit: "1顆約4份主食",
       grains: 4,
@@ -876,11 +861,14 @@
       // 份量同時受主食與蛋白質份數限制，取較小者，避免高蛋白小吃換出過多份
       const byGrain = scenario.grains > 0 ? g / scenario.grains : Infinity;
       const byProtein = scenario.protein >= 1 ? p / scenario.protein : Infinity;
-      const base = Math.min(byGrain, byProtein);
+      // 也不超過本餐熱量；以 1/4 份無條件捨去，偏保守
+      const byKcal = meal.kcal / scenarioExchangeKcal(scenario);
+      const base = Math.min(byGrain, byProtein, byKcal);
       if (!Number.isFinite(base)) return "請先完成個案資料";
-      const portion = Math.max(0.25, Math.round(base * 4) / 4);
+      const portion = Math.max(0.25, Math.floor(base * 4 + 1e-9) / 4);
       const grainGap = roundHalf(g - portion * scenario.grains);
-      const addGrain = grainGap >= 1 ? `，主食不足可補白飯約 ${formatNumber(grainGap / 4, 1)} 碗` : "";
+      const kcalBound = byKcal <= Math.min(byGrain, byProtein);
+      const addGrain = grainGap >= 1 && !kcalBound ?`，主食不足可補白飯約 ${formatNumber(grainGap / 4, 1)} 碗` : "";
       const addVeg = scenario.veg * portion < v ? "，並補足青菜" : "";
       const sauce = scenario.fat * portion > f + 1 ? "；油脂超過本餐份數，醬料/湯汁減量" : "";
       return `約 ${formatNumber(portion, 2)} ${scenario.servingName}${addGrain}${addVeg}${sauce}`;
@@ -906,8 +894,6 @@
         return `飯量約 ${formatNumber(g / 4, 1)} 碗；滷汁少淋並補青菜`;
       case "牛肉麵":
         return `約 ${formatNumber(g / 4, 1)} 碗；湯少喝並加青菜`;
-      case "蚵仔煎/蝦仁煎":
-        return `約 ${formatNumber(g / 3, 1)} 份；醬料減半`;
       case "飯糰":
         return `約 ${formatNumber(g / 4, 1)} 顆；可改半顆或去油條`;
       case "鍋貼/水煎包": {
